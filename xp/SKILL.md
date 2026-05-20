@@ -62,6 +62,8 @@ Rules:
 - Do not write secrets or credentials anywhere.
 - Do not store XP notes in Project Instructions.
 - Score only tasks completed since the latest XP history entry. Do not award XP twice for the same task.
+- Do not award positive XP for purely utility work such as checking status, staging, committing, pushing, copying files, installing the already-built skill, or other mechanical repository/file operations. Utility work can receive `0 XP` when accepted, and `-200 XP` if the user is dissatisfied.
+- Award positive XP for the substantive work behind those utility steps, such as implementing a requested change, researching a rule, fixing a bug, designing behavior, or producing a useful artifact.
 
 ## Score Corrections
 
