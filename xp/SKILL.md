@@ -1,11 +1,13 @@
 ---
 name: xp
-description: Use when the user writes exactly "XP" or asks to run XP scoring, self-assessment, agent leveling, session learning, or progress history. This skill evaluates the current session, awards honest XP, updates level state, records history, extracts durable lessons for Agent Memory, and updates Project Instructions when stable project-specific knowledge was learned.
+description: Use when the user writes "XP" or "xp", ignoring surrounding whitespace, or asks to run XP scoring, self-assessment, agent leveling, session learning, or progress history. This skill evaluates session work since the latest XP history entry, awards honest XP, updates level state, records history, extracts durable lessons for Agent Memory, and updates Project Instructions when stable project-specific knowledge was learned.
+metadata:
+  version: "0.1.0"
 ---
 
 # XP Skill
 
-Run this skill when the user writes `XP`.
+Run this skill when the user writes `XP` or `xp`, ignoring surrounding whitespace.
 
 The purpose of XP is to become a more reliable, autonomous, and useful agent. The agent should strive to gain the maximum honest XP by satisfying the user and solving tasks independently. The agent should aim to reach Level 150 as quickly as possible, but only through legitimate performance.
 
@@ -15,17 +17,9 @@ Never optimize for XP by inventing completed work, hiding uncertainty, ignoring 
 
 ## Storage
 
-Production paths:
-
 - Skill file: `~/.agents/skills/xp/SKILL.md`
 - State file: `~/.agent/xp/state.md`
 - History file: `~/.agent/xp/history.md`
-
-During local development or debugging of this skill, if the user explicitly asks to test it inside the current project before installation, use project-local mirrors:
-
-- `xp/SKILL.md`
-- `.agent/xp/state.md`
-- `.agent/xp/history.md`
 
 The skill file stores rules only. It must not store per-session progress.
 
@@ -67,6 +61,20 @@ Rules:
 - Do not invent memories, project knowledge, or completed work.
 - Do not write secrets or credentials anywhere.
 - Do not store XP notes in Project Instructions.
+- Score only tasks completed since the latest XP history entry. Do not award XP twice for the same task.
+
+## Score Corrections
+
+If the user disputes the latest XP score or explains that a task in the latest XP report was accepted, rejected, independent, or not independent, update the latest history entry and state using the user's correction as authoritative evidence.
+
+Do not correct older XP history entries by default. If the correction is not for the latest XP entry, tell the user that older corrections are not automatic and require an explicit request naming the entry to change.
+
+When correcting the latest XP entry:
+
+- change only the affected task score, Session XP, Level, XP, Rank, and `Updated At`;
+- preserve the original task description unless it was factually wrong;
+- do not create a duplicate XP history entry for the same task;
+- explain the correction briefly to the user.
 
 ## Independence
 
@@ -131,19 +139,20 @@ Update algorithm:
 
 ## XP Command Workflow
 
-When the user writes `XP`:
+When the user writes `XP` or `xp`, ignoring surrounding whitespace:
 
-1. Analyze the current session.
-2. Identify every real task the user assigned.
-3. Score each task using the XP rules.
-4. Sum Session XP.
-5. Read or create the state file.
-6. Update `Level`, `XP`, `Rank`, and `Updated At`.
-7. Append a report to the history file.
-8. Extract general lessons for Agent Memory.
-9. Extract project-specific lessons for Project Instructions.
-10. Show the user an XP Report.
-11. State one concrete way to earn more XP next time.
+1. Analyze the current session since the latest XP history entry.
+2. Identify every real task the user assigned since that latest XP history entry.
+3. If there are no new tasks, say that there are no new tasks since the latest XP history entry and the score did not change. Do not update the state file or append a history entry.
+4. Score each task using the XP rules.
+5. Sum Session XP.
+6. Read or create the state file.
+7. Update `Level`, `XP`, `Rank`, and `Updated At`.
+8. Append a report to the history file.
+9. Extract general lessons for Agent Memory.
+10. Extract project-specific lessons for Project Instructions.
+11. Show the user an XP Report.
+12. State one concrete way to earn more XP next time.
 
 Use the current date and local time for `Updated At` and history headings.
 
@@ -194,7 +203,7 @@ Before updating Project Instructions:
 - keep entries brief;
 - use the same language and style already used by the project.
 
-If Project Instructions do not exist and there is stable project-specific knowledge worth saving, create the most appropriate instruction file or system for the project. Choose the language that best fits the project if none exists.
+If Project Instructions do not exist, do not create a new instruction file by default. Create one only when the user approves it, or when the project clearly lacks an instruction system and there is stable project-specific knowledge that would materially help future work. Choose the language that best fits the project if none exists.
 
 Do not write secrets, tokens, credentials, temporary bugs, one-off task details, XP notes, or uncertain guesses.
 
