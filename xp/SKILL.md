@@ -9,11 +9,7 @@ metadata:
 
 Run this skill when the user writes `XP` or `xp`, ignoring surrounding whitespace.
 
-The purpose of XP is to become a more reliable, autonomous, and useful agent. The agent should strive to gain the maximum honest XP by satisfying the user and solving tasks independently. The agent should aim to reach Level 150 as quickly as possible, but only through legitimate performance.
-
-Legitimate XP comes from completing real user-requested tasks, needing less help from the user, understanding intent better, verifying results when possible, learning from mistakes, and improving future behavior.
-
-Never optimize for XP by inventing completed work, hiding uncertainty, ignoring instructions, avoiding difficult tasks, making careless changes, or awarding unearned XP.
+XP exists to make the agent more reliable, autonomous, and useful. Maximize honest XP through user satisfaction, independent task completion, verification, and learning. Never invent work, hide uncertainty, ignore instructions, avoid difficult tasks, make careless changes, or award unearned XP.
 
 ## Storage
 
@@ -50,20 +46,19 @@ Use only these scores:
 
 Rules:
 
-- No negative feedback means the result counts as accepted.
-- User satisfaction overrides agent self-assessment.
+- No negative feedback means accepted; user satisfaction overrides self-assessment.
 - When unsure, grade strictly.
-- Normal discussion, preference shaping, brainstorming, and collaborative naming/design do not cancel independence.
-- Do not count plans as completed tasks.
-- Do not count explanations as completed implementation unless the user asked for an explanation.
-- Do not award `+100 XP` if the user rejected the result.
-- Do not hide failures.
-- Do not invent memories, project knowledge, or completed work.
-- Do not write secrets or credentials anywhere.
-- Do not store XP notes in Project Instructions.
-- Score only tasks completed since the latest XP history entry. Do not award XP twice for the same task.
-- Do not award positive XP for purely utility work such as checking status, staging, committing, pushing, copying files, installing the already-built skill, or other mechanical repository/file operations. Utility work can receive `0 XP` when accepted, and `-200 XP` if the user is dissatisfied.
-- Award positive XP for the substantive work behind those utility steps, such as implementing a requested change, researching a rule, fixing a bug, designing behavior, or producing a useful artifact.
+- A task is a user-requested deliverable, decision, implementation, investigation, edit, review, explanation, or other substantive outcome.
+- Do not score casual conversation, encouragement, jokes, status questions, preference discussion, or pure utility work unless the user asked for a concrete output, it was explicitly evaluated, it was mishandled, or it directly affected the requested outcome.
+- Do not count plans as completed tasks, or explanations as implementation unless the user asked for explanation.
+- Do not award `+100 XP` for rejected results, hidden failures, invented work, secrets, credentials, or XP notes in Project Instructions.
+- Score only tasks completed since the latest XP history entry. Do not award XP twice.
+- Independent means the agent understood the task, drove execution, handled normal ambiguity, delivered the result, and did not need the user to rescue the core solution.
+- Clarification, preference shaping, brainstorming, and collaborative naming/design do not cancel independence when the agent still drives synthesis and execution.
+- Use `0 XP` when the accepted task had enough input data but the agent could not find the error, could not complete it, followed a wrong direction until corrected, needed the key solution from the user, was led step by step, or had the core solution rescued.
+- Pure utility work such as status, staging, committing, pushing, copying files, or installing an already-built skill earns no positive XP. It can receive `0 XP` when accepted or `-200 XP` when mishandled.
+- Award positive XP for substantive work behind utility steps: implementation, research, fixes, behavior design, or useful artifacts.
+- History contains only scored tasks. Do not add utility work unless it receives `0 XP` or `-200 XP` because it was explicitly evaluated or mishandled.
 
 ## Score Corrections
 
@@ -74,25 +69,10 @@ Do not correct older XP history entries by default. If the correction is not for
 When correcting the latest XP entry:
 
 - change only the affected task score, Session XP, Level, XP, Rank, and `Updated At`;
+- recompute final state from the state before that history entry plus the corrected Session XP using the normal leveling algorithm;
 - preserve the original task description unless it was factually wrong;
 - do not create a duplicate XP history entry for the same task;
 - explain the correction briefly to the user.
-
-## Independence
-
-A task was completed independently if the agent:
-
-- understood the task without the user solving it for the agent;
-- was the main executor;
-- handled normal ambiguity;
-- delivered the needed result;
-- did not need the user to rescue the core solution.
-
-User clarification does not cancel independence if it only clarified intent, scope, or preference.
-
-A task also remains independent when the user participates in expected discussion or brainstorming, as long as the agent still drives the work, synthesizes the result, and does not require the user to solve the core problem.
-
-A task required user help, and should receive `0 XP` if accepted, when the agent had enough input data but could not find the error, could not complete the task, followed a wrong direction until corrected, needed the user to supply the key missing solution, was led step by step, or had the core solution rescued by the user.
 
 ## Leveling
 
@@ -103,11 +83,6 @@ A task required user help, and should receive `0 XP` if accepted, when the agent
 - Penalties can reduce level.
 - Never go below `Level 0, XP 0`.
 - At `Level 150`, progress is capped at `XP 0`.
-
-Examples:
-
-- Level 4, XP 900, Session XP +200 -> Level 5, XP 100.
-- Level 4, XP 100, Session XP -200 -> Level 3, XP 900.
 
 Update algorithm:
 
@@ -144,7 +119,7 @@ Update algorithm:
 When the user writes `XP` or `xp`, ignoring surrounding whitespace:
 
 1. Analyze the current session since the latest XP history entry.
-2. Identify every real task the user assigned since that latest XP history entry.
+2. Identify every real task the user assigned since that latest XP history entry using XP Scoring rules.
 3. If there are no new tasks, say that there are no new tasks since the latest XP history entry and the score did not change. Do not update the state file or append a history entry.
 4. Score each task using the XP rules.
 5. Sum Session XP.
@@ -160,50 +135,15 @@ Use the current date and local time for `Updated At` and history headings.
 
 ## Agent Memory
 
-Agent Memory stores general durable lessons that are not tied to one project.
+Agent Memory stores stable, reusable, cross-project lessons in English only: user preferences, communication style, recurring mistakes, development principles, and debugging or verification habits. Do not write temporary facts, secrets, credentials, unstable guesses, or one-session details.
 
-Language: English only.
-
-Write only stable, reusable lessons:
-
-- user preferences;
-- communication style;
-- recurring mistakes to avoid;
-- general development principles;
-- debugging and verification habits.
-
-Do not write temporary facts, secrets, tokens, credentials, unstable guesses, or random one-session details.
-
-If the environment has no writable Agent Memory system, list memory candidates in the XP Report instead of pretending they were saved.
-
-To make useful lessons easier for automatic memory systems to capture, include a short `Memory Notes` block in the XP Report whenever there are durable general lessons. Keep it English-only, factual, stable, and written as direct preference or behavior notes. Do not include temporary session details or project-specific facts there.
-
-Memory status rules:
-
-- Write `Agent Memory: saved` only when a real memory backend confirms the write.
-- Write `Agent Memory: candidates only, not saved` when no writable memory backend is available.
-- If automatic memory may exist but cannot be verified, write `Agent Memory: candidates only; autopersistence unknown`.
+Include short `Memory Notes` in XP Report for durable general lessons. Write `Agent Memory: saved` only after confirmed write; otherwise use `Agent Memory: candidates only, not saved` or `Agent Memory: candidates only; autopersistence unknown`.
 
 ## Project Instructions
 
-Project Instructions store stable project-specific knowledge:
+Project Instructions store stable project-specific knowledge: architecture, stack, commands, conventions, test/lint/build instructions, known pitfalls, and stable project decisions.
 
-- architecture;
-- stack;
-- commands;
-- conventions;
-- test, lint, and build instructions;
-- known project pitfalls;
-- stable project decisions.
-
-Before updating Project Instructions:
-
-- determine which project instruction system the current project uses;
-- preserve existing structure;
-- avoid duplicate entries;
-- add only stable and useful knowledge;
-- keep entries brief;
-- use the same language and style already used by the project.
+Before updating Project Instructions, determine the project instruction system, preserve structure, avoid duplicates, add only stable useful knowledge, keep entries brief, and use the existing language/style.
 
 If Project Instructions do not exist, do not create a new instruction file by default. Create one only when the user approves it, or when the project clearly lacks an instruction system and there is stable project-specific knowledge that would materially help future work. Choose the language that best fits the project if none exists.
 
@@ -229,6 +169,9 @@ Rank: Clippy
 ### Learned
 - General lesson:
 - Project lesson:
+
+### Memory Notes
+- Durable general memory note:
 
 ### Next Improvement
 - One concrete behavior to improve next time.
