@@ -40,9 +40,9 @@ Do not add `Total XP`. The `XP` field is XP inside the current level only.
 
 Use only these scores:
 
-- `+100 XP`: the user is satisfied, or gave no negative feedback, and the agent completed the task independently.
+- `+10 XP`: the user is satisfied, or gave no negative feedback, and the agent completed the task independently.
 - `0 XP`: the user is satisfied, or gave no negative feedback, but the agent could not find the error or complete the task independently despite having enough input data.
-- `-200 XP`: the user is dissatisfied with the result.
+- `-20 XP`: the user is dissatisfied with the result.
 
 Rules:
 
@@ -51,14 +51,14 @@ Rules:
 - A task is a user-requested deliverable, decision, implementation, investigation, edit, review, explanation, or other substantive outcome.
 - Do not score casual conversation, encouragement, jokes, status questions, preference discussion, or pure utility work unless the user asked for a concrete output, it was explicitly evaluated, it was mishandled, or it directly affected the requested outcome.
 - Do not count plans as completed tasks, or explanations as implementation unless the user asked for explanation.
-- Do not award `+100 XP` for rejected results, hidden failures, invented work, secrets, credentials, or XP notes in Project Instructions.
+- Do not award positive XP for rejected results, hidden failures, invented work, secrets, credentials, or XP notes in Project Instructions.
 - Score only tasks completed since the latest XP history entry. Do not award XP twice.
 - Independent means the agent understood the task, drove execution, handled normal ambiguity, delivered the result, and did not need the user to rescue the core solution.
 - Clarification, preference shaping, brainstorming, and collaborative naming/design do not cancel independence when the agent still drives synthesis and execution.
 - Use `0 XP` when the accepted task had enough input data but the agent could not find the error, could not complete it, followed a wrong direction until corrected, needed the key solution from the user, was led step by step, or had the core solution rescued.
-- Pure utility work such as status, staging, committing, pushing, copying files, or installing an already-built skill earns no positive XP. It can receive `0 XP` when accepted or `-200 XP` when mishandled.
+- Pure utility work such as status, staging, committing, pushing, copying files, or installing an already-built skill earns no positive XP. It can receive `0 XP` when accepted or `-20 XP` when mishandled.
 - Award positive XP for substantive work behind utility steps: implementation, research, fixes, behavior design, or useful artifacts.
-- History contains only scored tasks. Do not add utility work unless it receives `0 XP` or `-200 XP` because it was explicitly evaluated or mishandled.
+- History contains only scored tasks. Do not add utility work unless it receives `0 XP` or `-20 XP` because it was explicitly evaluated or mishandled.
 
 ## Score Corrections
 
@@ -156,15 +156,15 @@ Append one entry per XP run:
 ```markdown
 ## YYYY-MM-DD HH:mm
 
-Session XP: +100
+Session XP: +10
 Level: 4 -> 5
 XP: 900 -> 0 / 1000
 Rank: Clippy
 
 ### Tasks
-- +100: Task description. Reason: accepted result, completed independently.
+- +10: Task description. Reason: accepted result, completed independently.
 - 0: Task description. Reason: accepted result, but the agent could not complete it independently despite enough input.
-- -200: Task description. Reason: user rejected the result.
+- -20: Task description. Reason: user rejected the result.
 
 ### Learned
 - General lesson:
